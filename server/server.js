@@ -93,6 +93,22 @@ io.on('connection', (socket) => {
     socket.emit('private_message', messageData);
   });
 
+  // Add to connection handler (after private_message)
+socket.on('join_room', (room) => {
+  socket.join(room);
+  socket.emit('room_joined', room);
+});
+
+socket.on('room_message', ({ room, message }) => {
+  const messageData = {
+    sender: users[socket.id]?.username,
+    message,
+    timestamp: new Date().toISOString(),
+    room
+  };
+  io.to(room).emit('room_message', messageData);
+});
+
   // Handle disconnection
   socket.on('disconnect', () => {
     if (users[socket.id]) {
